@@ -45,6 +45,6 @@ The test suite installs both SDK versions through npm aliases, so one run produc
 
 ## XBSTACK article
 
-Chinese: https://www.xbstack.com/ai/vercel-ai-sdk-historical-tool-approval-resume-error/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme_zh
+Chinese: https://www.xbstack.com/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme_zh
 
-English: https://www.xbstack.com/en/ai/vercel-ai-sdk-historical-tool-approval-resume-error/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
+English: https://www.xbstack.com/en/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
