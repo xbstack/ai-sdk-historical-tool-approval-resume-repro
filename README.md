@@ -1,41 +1,36 @@
 # AI SDK historical tool approval resume reproduction
 
-This fixture reproduces Vercel AI SDK issue #21193 without a real model or provider credentials.
+Provider-free XBSTACK reproduction for Vercel AI SDK issue #21193.
 
-## What it tests
-
-1. Latest-message approval control.
-2. Historical-message approve.
-3. Historical-message reject.
-4. Historical approved tool result continuation.
+This fixture verifies the long-running chat case where a tool approval belongs to an earlier assistant message, later conversation messages already exist, and the user then approves or rejects the older tool call.
 
 ## Verified matrix
 
 | AI SDK | Historical approve/reject | Historical tool output |
 | --- | --- | --- |
-| 7.0.107 | Fails: owner remains `approval-requested` | Fails with `No tool invocation found for tool call ID "call-1".` |
-| 7.0.113 | Passes: owner becomes `approval-responded` | Passes: owner becomes `output-available` |
+| 7.0.107 | **Reproduced bug**: owning message stays `approval-requested` | **Reproduced bug**: `No tool invocation found for tool call ID "call-1".` |
+| 7.0.113 | **Fixed in local regression**: owning message becomes `approval-responded` | **Fixed in local regression**: owning message becomes `output-available`, output is preserved |
 
-The repository currently pins `ai@7.0.113`, the current npm version observed on 2026-09-24.
+Verified locally on 2026-09-24 with Node.js >=22. The fixture is provider-free: it uses in-memory messages and an in-memory UI message stream, with no model API, credentials, payment API, or production service.
 
-## Run
+## Run the current fixed comparison
 
 ```bash
 npm install
 npm run typecheck
 EXPECT_FIXED=1 npm test
-EXPECT_FIXED=1 npx tsx src/stream-repro.ts
+EXPECT_FIXED=1 npm run test:stream
 ```
 
-To reproduce the affected version:
+## Reproduce the affected version
 
 ```bash
 npm install ai@7.0.107 --save-exact
 npm test
-npx tsx src/stream-repro.ts
+npm run test:stream
 ```
 
-Then restore the verified fixed version:
+Restore the current verified fixed package:
 
 ```bash
 npm install ai@7.0.113 --save-exact
@@ -43,11 +38,18 @@ npm install ai@7.0.113 --save-exact
 
 ## Evidence boundary
 
-The state-only fixture directly verifies the historical approval mutation bug. The stream fixture directly verifies the missing-invocation failure. It does not use a real provider, React, Cloudflare, or application code.
+The state fixture proves that historical approval mutation failed on 7.0.107 and succeeds on 7.0.113. The stream fixture proves the historical `tool-output-available` lookup failure on 7.0.107 and successful continuation on 7.0.113.
 
-## Links
+It does not prove behavior for every version between those two pins, and it does not identify the first npm release containing the fix.
 
-- Detailed analysis: https://www.xbstack.com/en/ai/tools-lab/ai-sdk-historical-tool-approval-resume-error/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
-- Chinese analysis: https://www.xbstack.com/ai/tools-lab/ai-sdk-historical-tool-approval-resume-error/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
-- Upstream issue: https://github.com/vercel/ai/issues/21193
-- Upstream fix PR: https://github.com/vercel/ai/pull/21203
+## Upstream
+
+- Issue: https://github.com/vercel/ai/issues/21193
+- Fix PR: https://github.com/vercel/ai/pull/21203
+
+## XBSTACK
+
+The long-lived production context remains in the existing AI SDK 7 migration guide rather than creating a short-lived bug-only article:
+
+- Chinese: https://www.xbstack.com/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
+- English: https://www.xbstack.com/en/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme

@@ -1,14 +1,20 @@
 # Version matrix
 
-| Date | Runtime | ai version | Test | Result |
-| --- | --- | --- | --- | --- |
-| 2026-09-24 | Node.js local | 7.0.107 | latest-message approval | PASS |
-| 2026-09-24 | Node.js local | 7.0.107 | historical approve | FAIL: remains approval-requested |
-| 2026-09-24 | Node.js local | 7.0.107 | historical reject | FAIL: remains approval-requested |
-| 2026-09-24 | Node.js local | 7.0.107 | historical tool-output continuation | FAIL: No tool invocation found for tool call ID "call-1". |
-| 2026-09-24 | Node.js local | 7.0.113 | latest-message approval | PASS |
-| 2026-09-24 | Node.js local | 7.0.113 | historical approve | PASS |
-| 2026-09-24 | Node.js local | 7.0.113 | historical reject | PASS |
-| 2026-09-24 | Node.js local | 7.0.113 | historical tool-output continuation | PASS |
+Verified on 2026-09-24.
 
-The matrix proves behavior for these two tested versions only. It does not identify the first patched npm release between them.
+| Runtime | AI SDK | State-only approval | Stream continuation | Result |
+| --- | --- | --- | --- | --- |
+| Node.js >=22 | 7.0.107 | latest message passes; historical approve/reject stay `approval-requested` | `No tool invocation found for tool call ID "call-1".` | affected |
+| Node.js >=22 | 7.0.113 | historical approve/reject become `approval-responded` | `output-available` with `{"ok":true}` | fixed in tested version |
+
+Evidence logs:
+
+- `logs/7.0.107.txt`
+- `logs/7.0.113.txt`
+
+Upstream:
+
+- https://github.com/vercel/ai/issues/21193
+- https://github.com/vercel/ai/pull/21203
+
+This matrix only claims the two versions actually tested. It does not infer the first patched npm release between them.
