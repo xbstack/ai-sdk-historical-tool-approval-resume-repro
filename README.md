@@ -49,7 +49,12 @@ It does not prove behavior for every version between those two pins, and it does
 
 ## XBSTACK
 
-The long-lived production context remains in the existing AI SDK 7 migration guide rather than creating a short-lived bug-only article:
+Focused troubleshooting article with the exact error, affected/fixed comparison, and regression checklist:
 
-- Chinese: https://www.xbstack.com/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
-- English: https://www.xbstack.com/en/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
+- Chinese: https://www.xbstack.com/ai/vercel-ai-sdk-historical-tool-approval-resume-error/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
+- English: https://www.xbstack.com/en/ai/vercel-ai-sdk-historical-tool-approval-resume-error/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme
+
+Broader AI SDK 7 migration context:
+
+- Chinese: https://www.xbstack.com/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme_context
+- English: https://www.xbstack.com/en/ai/vercel-ai-sdk-7-migration-production/?utm_source=github&utm_medium=referral&utm_campaign=ai_sdk_historical_tool_approval&utm_content=repository_readme_context
