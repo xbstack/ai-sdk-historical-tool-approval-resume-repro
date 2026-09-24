@@ -7,13 +7,16 @@
     "node": ">=22"
   },
   "scripts": {
-    "inspect": "node src/inspect-exports.mjs",
-    "test": "tsx src/repro.ts",
-    "test:stream": "tsx src/stream-repro.ts",
-    "typecheck": "tsc --noEmit"
+    "typecheck": "tsc --noEmit",
+    "test:broken": "AI_PACKAGE=ai-broken AI_EXPECTATION=broken tsx src/repro.ts",
+    "test:fixed": "AI_PACKAGE=ai-fixed AI_EXPECTATION=fixed tsx src/repro.ts",
+    "test:stream:broken": "AI_PACKAGE=ai-broken AI_EXPECTATION=broken tsx src/stream-repro.ts",
+    "test:stream:fixed": "AI_PACKAGE=ai-fixed AI_EXPECTATION=fixed tsx src/stream-repro.ts",
+    "test": "npm run test:broken && npm run test:fixed && npm run test:stream:broken && npm run test:stream:fixed"
   },
   "dependencies": {
-    "ai": "7.0.113",
+    "ai-broken": "npm:ai@7.0.107",
+    "ai-fixed": "npm:ai@7.0.113",
     "zod": "4.4.3"
   },
   "devDependencies": {

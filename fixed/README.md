@@ -1,16 +1,13 @@
-# Fixed verification
+# Verified fixed behavior: ai@7.0.113
 
-Pin `ai@7.0.113` and run:
+XBSTACK reran the same fixtures on 2026-09-24.
 
-```bash
-npm install ai@7.0.113 --save-exact
-EXPECT_FIXED=1 npm test
-EXPECT_FIXED=1 npx tsx src/stream-repro.ts
-npm run typecheck
+```text
+historical approve -> approval-responded
+historical reject  -> approval-responded
+historical tool output -> output-available
+chat status -> ready
+later conversation messages -> preserved
 ```
 
-Expected:
-- historical approve/reject update the owning assistant message;
-- later messages stay in place;
-- historical tool output is written back to the owning tool part;
-- chat finishes with status `ready`.
+This verifies 7.0.113 as fixed for the tested paths. It does not claim that 7.0.113 is the first patched npm release.

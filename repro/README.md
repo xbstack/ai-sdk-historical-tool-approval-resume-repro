@@ -1,14 +1,26 @@
-# Reproduction
+# Affected behavior: ai@7.0.107
 
-Pin `ai@7.0.107` and run the two fixtures.
+XBSTACK reproduced both historical-message failures on 2026-09-24.
 
-```bash
-npm install ai@7.0.107 --save-exact
-npm test
-npx tsx src/stream-repro.ts
+State path:
+
+```text
+latest assistant approval
+-> approval-responded
+
+older assistant approval + later conversation
+-> approve/reject called
+-> owning tool part remains approval-requested
 ```
 
-Expected broken behavior:
-- historical approval owner remains `approval-requested`;
-- resumed historical output ends in `error`;
-- error contains `No tool invocation found for tool call ID "call-1".`.
+Stream path:
+
+```text
+older assistant tool call is already approval-responded
+-> later conversation remains in history
+-> tool-output-available(call-1)
+-> No tool invocation found for tool call ID "call-1".
+-> chat status = error
+```
+
+No provider or network call is involved.

@@ -1,11 +1,13 @@
 import assert from 'node:assert/strict';
-import { AbstractChat, createUIMessageStream } from 'ai';
 
 type AnyMessage = {
   id: string;
   role: 'user' | 'assistant';
   parts: any[];
 };
+
+const packageName = process.env.AI_PACKAGE ?? 'ai-broken';
+const { AbstractChat, createUIMessageStream } = await import(packageName);
 
 function makeState(messages: AnyMessage[]) {
   return {
@@ -80,6 +82,8 @@ assert.ok(owner, 'assistant-1 must remain present');
 const ownerPart = owner.parts[0];
 
 const result = {
+  packageName,
+  expectation: process.env.AI_EXPECTATION ?? 'broken',
   status: state.status,
   errors,
   ownerState: ownerPart.state,
@@ -87,10 +91,9 @@ const result = {
   messageIds: state.messages.map((message: AnyMessage) => message.id),
 };
 
-console.log(JSON.stringify(result));
+console.log(JSON.stringify(result, null, 2));
 
-const expectedFixed = process.env.EXPECT_FIXED === '1';
-if (expectedFixed) {
+if ((process.env.AI_EXPECTATION ?? 'broken') === 'fixed') {
   assert.equal(state.status, 'ready');
   assert.equal(errors.length, 0);
   assert.deepEqual(ownerPart.output, { ok: true });

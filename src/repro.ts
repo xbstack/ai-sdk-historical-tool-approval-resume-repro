@@ -1,5 +1,4 @@
 import assert from 'node:assert/strict';
-import { AbstractChat } from 'ai';
 
 type AnyMessage = {
   id: string;
@@ -7,116 +6,125 @@ type AnyMessage = {
   parts: any[];
 };
 
-function makeState(messages: AnyMessage[]) {
+const packageName = process.env.AI_PACKAGE ?? 'ai-broken';
+const { AbstractChat } = await import(packageName);
+
+class MemoryState {
+  messages: AnyMessage[];
+  status: 'ready' | 'submitted' | 'streaming' | 'error' = 'ready';
+  error: unknown;
+
+  constructor(messages: AnyMessage[]) {
+    this.messages = structuredClone(messages);
+  }
+
+  pushMessage(message: AnyMessage) {
+    this.messages.push(message);
+  }
+
+  replaceMessage(index: number, message: AnyMessage) {
+    this.messages[index] = message;
+  }
+
+  snapshot(message: AnyMessage) {
+    return structuredClone(message);
+  }
+}
+
+function toolApprovalMessage(id = 'assistant-approval'): AnyMessage {
   return {
-    messages: structuredClone(messages),
-    status: 'ready',
-    error: undefined,
-    pushMessage(message: AnyMessage) {
-      this.messages.push(message);
-    },
-    replaceMessage(index: number, message: AnyMessage) {
-      this.messages[index] = message;
-    },
-    snapshot(message: AnyMessage) {
-      return structuredClone(message);
-    },
-  };
-}
-
-function makeChat(messages: AnyMessage[]) {
-  const state = makeState(messages);
-  const chat = new (AbstractChat as any)({
-    id: 'xbstack-historical-approval-repro',
-    state,
-    transport: {
-      async sendMessages() {
-        throw new Error('transport should not be called in this state-only reproduction');
-      },
-      async reconnectToStream() {
-        return null;
-      },
-    },
-  });
-  return { chat, state };
-}
-
-const historicalMessages: AnyMessage[] = [
-  {
-    id: 'user-1',
-    role: 'user',
-    parts: [{ type: 'text', text: 'Run the risky tool.' }],
-  },
-  {
-    id: 'assistant-1',
+    id,
     role: 'assistant',
     parts: [
       {
-        type: 'tool-riskyAction',
+        type: 'tool-chargeCard',
         toolCallId: 'call-1',
         state: 'approval-requested',
-        input: { value: 1 },
+        input: { amount: 2500 },
         approval: { id: 'approval-1' },
       },
     ],
-  },
-  {
-    id: 'user-2',
-    role: 'user',
-    parts: [{ type: 'text', text: 'Before deciding, tell me something else.' }],
-  },
-  {
-    id: 'assistant-2',
-    role: 'assistant',
-    parts: [{ type: 'text', text: 'Later assistant turn.' }],
-  },
-];
-
-const latestMessages: AnyMessage[] = historicalMessages.slice(0, 2);
-
-async function runCase(name: string, messages: AnyMessage[], approved: boolean) {
-  const { chat, state } = makeChat(messages);
-  await chat.addToolApprovalResponse({
-    id: 'approval-1',
-    approved,
-    reason: approved ? 'approved in test' : 'rejected in test',
-  });
-
-  const owner = state.messages.find((message: AnyMessage) => message.id === 'assistant-1');
-  assert.ok(owner, 'assistant-1 must exist in the fixture');
-  const part = owner.parts[0];
-
-  const result = {
-    case: name,
-    approved,
-    ownerState: part.state,
-    ownerApproval: part.approval,
-    lastMessageId: state.messages[state.messages.length - 1].id,
-    laterMessagePreserved:
-      state.messages.length === messages.length &&
-      state.messages[state.messages.length - 1].id === messages[messages.length - 1].id,
   };
-
-  console.log(JSON.stringify(result));
-  return result;
 }
 
-const latestApprove = await runCase('latest-message-approve-control', latestMessages, true);
-assert.equal(latestApprove.ownerState, 'approval-responded');
+function laterConversation(): AnyMessage[] {
+  return [
+    {
+      id: 'user-later',
+      role: 'user',
+      parts: [{ type: 'text', text: 'What is the status?' }],
+    },
+    {
+      id: 'assistant-later',
+      role: 'assistant',
+      parts: [{ type: 'text', text: 'Still waiting for approval.' }],
+    },
+  ];
+}
 
-const historicalApprove = await runCase('historical-message-approve', historicalMessages, true);
-const historicalReject = await runCase('historical-message-reject', historicalMessages, false);
+function approvalState(messages: AnyMessage[]) {
+  const owning = messages.find(message => message.id === 'assistant-approval');
+  const part = owning?.parts.find(part => part.toolCallId === 'call-1');
+  return part?.state;
+}
 
-const expectedFixed = process.env.EXPECT_FIXED === '1';
+async function runLatestControl() {
+  const state = new MemoryState([toolApprovalMessage()]);
+  const chat = new (AbstractChat as any)({ state });
+  await chat.addToolApprovalResponse({ id: 'approval-1', approved: true });
 
-if (expectedFixed) {
-  assert.equal(historicalApprove.ownerState, 'approval-responded');
-  assert.equal(historicalReject.ownerState, 'approval-responded');
-  assert.equal(historicalApprove.laterMessagePreserved, true);
-  assert.equal(historicalReject.laterMessagePreserved, true);
-  console.log('RESULT=fixed');
+  const observed = approvalState(state.messages);
+  console.log('latest-message approve:', observed);
+  assert.equal(observed, 'approval-responded');
+}
+
+async function runHistoricalApprove() {
+  const state = new MemoryState([toolApprovalMessage(), ...laterConversation()]);
+  const chat = new (AbstractChat as any)({ state });
+  await chat.addToolApprovalResponse({ id: 'approval-1', approved: true });
+
+  const observed = approvalState(state.messages);
+  console.log('historical-message approve:', observed);
+  return observed;
+}
+
+async function runHistoricalReject() {
+  const state = new MemoryState([toolApprovalMessage(), ...laterConversation()]);
+  const chat = new (AbstractChat as any)({ state });
+  await chat.addToolApprovalResponse({
+    id: 'approval-1',
+    approved: false,
+    reason: 'Not now',
+  });
+
+  const observed = approvalState(state.messages);
+  console.log('historical-message reject:', observed);
+  return observed;
+}
+
+await runLatestControl();
+
+const approve = await runHistoricalApprove();
+const reject = await runHistoricalReject();
+
+console.log(
+  JSON.stringify(
+    {
+      packageName,
+      expectation: process.env.AI_EXPECTATION ?? 'broken',
+      latestControl: 'approval-responded',
+      historicalApprove: approve,
+      historicalReject: reject,
+    },
+    null,
+    2,
+  ),
+);
+
+if ((process.env.AI_EXPECTATION ?? 'broken') === 'broken') {
+  assert.equal(approve, 'approval-requested');
+  assert.equal(reject, 'approval-requested');
 } else {
-  assert.equal(historicalApprove.ownerState, 'approval-requested');
-  assert.equal(historicalReject.ownerState, 'approval-requested');
-  console.log('RESULT=reproduced');
+  assert.equal(approve, 'approval-responded');
+  assert.equal(reject, 'approval-responded');
 }

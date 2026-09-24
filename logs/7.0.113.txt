@@ -1,18 +1,16 @@
-AI SDK 7.0.113 local verification — 2026-09-24
+XBSTACK verification date: 2026-09-24
+Runtime: Node.js 22.18.0
+Package: ai@7.0.113
 
-latest-message-approve-control:
-ownerState=approval-responded
+latest-message approve: approval-responded
+historical-message approve: approval-responded
+historical-message reject: approval-responded
 
-historical-message-approve:
-ownerState=approval-responded
+stream:
+status: ready
+errors: none
+ownerState: output-available
+ownerOutput: {"ok":true}
+later message ids preserved: user-1, assistant-1, user-2, assistant-2
 
-historical-message-reject:
-ownerState=approval-responded
-
-historical tool output:
-status=ready
-errors=[]
-ownerState=output-available
-ownerOutput={"ok":true}
-
-RESULT=fixed
+Result: fixed in tested version

@@ -1,17 +1,15 @@
-AI SDK 7.0.107 local reproduction — 2026-09-24
+XBSTACK verification date: 2026-09-24
+Runtime: Node.js 22.18.0
+Package: ai@7.0.107
 
-latest-message-approve-control:
-ownerState=approval-responded
+latest-message approve: approval-responded
+historical-message approve: approval-requested
+historical-message reject: approval-requested
 
-historical-message-approve:
-ownerState=approval-requested
+stream:
+status: error
+error: No tool invocation found for tool call ID "call-1".
+ownerState: approval-responded
+later message ids preserved: user-1, assistant-1, user-2, assistant-2
 
-historical-message-reject:
-ownerState=approval-requested
-
-historical tool output:
-status=error
-error=No tool invocation found for tool call ID "call-1".
-ownerState=approval-responded
-
-RESULT=reproduced
+Result: reproduced
