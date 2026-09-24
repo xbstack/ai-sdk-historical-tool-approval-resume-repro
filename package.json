@@ -1,0 +1,22 @@
+{
+  "name": "xbstack-ai-sdk-historical-tool-approval-resume-repro",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "engines": {
+    "node": ">=22"
+  },
+  "scripts": {
+    "test": "tsx src/repro.ts",
+    "typecheck": "tsc --noEmit"
+  },
+  "dependencies": {
+    "ai": "7.0.113",
+    "zod": "4.4.3"
+  },
+  "devDependencies": {
+    "@types/node": "22.15.30",
+    "tsx": "4.20.5",
+    "typescript": "5.8.3"
+  }
+}

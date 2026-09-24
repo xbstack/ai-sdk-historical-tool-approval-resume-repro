@@ -1,0 +1,17 @@
+AI SDK 7.0.107 local reproduction — 2026-09-24
+
+latest-message-approve-control:
+ownerState=approval-responded
+
+historical-message-approve:
+ownerState=approval-requested
+
+historical-message-reject:
+ownerState=approval-requested
+
+historical tool output:
+status=error
+error=No tool invocation found for tool call ID "call-1".
+ownerState=approval-responded
+
+RESULT=reproduced

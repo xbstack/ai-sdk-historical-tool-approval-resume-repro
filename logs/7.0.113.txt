@@ -1,0 +1,18 @@
+AI SDK 7.0.113 local verification — 2026-09-24
+
+latest-message-approve-control:
+ownerState=approval-responded
+
+historical-message-approve:
+ownerState=approval-responded
+
+historical-message-reject:
+ownerState=approval-responded
+
+historical tool output:
+status=ready
+errors=[]
+ownerState=output-available
+ownerOutput={"ok":true}
+
+RESULT=fixed
